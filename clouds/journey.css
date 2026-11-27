@@ -1,0 +1,244 @@
+/* Clouds copy of the journey styles from the Frame concept (26.11); the Clouds layout overrides them in style.css. */
+/* ==========================================================================
+   TerraSales — the journey (shared by Final · Frame and Final · Horizon)
+   Three stations on one line: Buyer Truth (Capture) → Revenue Context
+   (Understand) → CRM Accuracy (Act). Station 1 lights up, the line fills towards
+   station 2, station 2 lights up, and so on; each station's product card rises
+   in as it lights. Coordinates are frame units (1550 wide); --jy is the top of
+   the station row (446 in the hero frame), everything else hangs off it.
+   ========================================================================== */
+.jr {
+  --jy: 446;
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+}
+.jr > * { pointer-events: auto; }
+.jr__steps { margin: 0; padding: 0; }
+
+.jr__step {
+  position: absolute; top: calc(var(--jy) * var(--f));
+  width: calc(330 * var(--f)); margin-left: calc(-165 * var(--f));
+  display: flex; flex-direction: column; align-items: center;
+  list-style: none;
+}
+.jr__step--1 { left: calc(290 * var(--f));  --tone: #FF8A66; --tone-rgb: 255, 138, 102; }
+.jr__step--2 { left: calc(775 * var(--f));  --tone: #C792FF; --tone-rgb: 199, 146, 255; }
+.jr__step--3 { left: calc(1260 * var(--f)); --tone: #86B6FF; --tone-rgb: 134, 182, 255; }
+
+/* ---------- label ---------- */
+.jr__label {
+  height: calc(46 * var(--f));
+  text-align: center;
+  opacity: .62;
+  transition: opacity .6s var(--ease);
+}
+.jr__step.is-lit .jr__label { opacity: 1; }
+.jr__kicker {
+  margin: 0;
+  display: inline-flex; align-items: center; gap: calc(7 * var(--f));
+  font: 600 max(10px, calc(11 * var(--f)))/1.2 var(--jakarta);
+  letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(255, 255, 255, .82);
+}
+.jr__kicker i {
+  width: calc(7 * var(--f)); height: calc(7 * var(--f)); border-radius: 50%;
+  background: var(--tone); box-shadow: 0 0 calc(8 * var(--f)) rgba(var(--tone-rgb), .6);
+}
+.jr__title {
+  margin: calc(6 * var(--f)) 0 0;
+  font: 500 calc(21 * var(--f))/1.2 var(--jakarta);
+  color: #fff; white-space: nowrap;
+}
+
+/* ---------- the station: a solid disc in a glass ring, a line icon on top ---------- */
+.jr__icon {
+  position: relative; isolation: isolate;
+  width: calc(88 * var(--f)); height: calc(88 * var(--f));
+  margin-top: calc(14 * var(--f));
+  border-radius: 50%;
+  display: grid; place-items: center;
+}
+.jr__icon::before {                                   /* the glass ring */
+  content: ""; position: absolute; inset: 0; z-index: -2; border-radius: 50%;
+  background: rgba(255, 255, 255, .13);
+  border: 1px solid rgba(255, 255, 255, .38);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.jr__disc {                                           /* the solid disc inside it */
+  position: absolute; inset: calc(8 * var(--f)); z-index: -1; border-radius: 50%;
+  background: linear-gradient(180deg, #3A57A8, #2A4290);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12), 0 calc(4 * var(--f)) calc(14 * var(--f)) rgba(6, 16, 60, .28);
+}
+.jr__icon::after {                                    /* the light, once the station is lit */
+  content: ""; position: absolute; inset: -1px; z-index: -2; border-radius: 50%;
+  border: 1px solid rgba(var(--tone-rgb), .9);
+  box-shadow: 0 0 0 calc(5 * var(--f)) rgba(var(--tone-rgb), .1),
+              0 0 calc(36 * var(--f)) rgba(var(--tone-rgb), .42);
+  opacity: 0; transition: opacity .7s var(--ease);
+}
+.jr__step.is-lit .jr__icon::after { opacity: 1; }
+.jr__pulse {                                          /* one soft ring when the station lights */
+  position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  border: 1px solid rgba(var(--tone-rgb), .7);
+  opacity: 0;
+}
+.jr__step.is-lit .jr__pulse { animation: jr-pulse 1.1s var(--ease-out) both; }
+@keyframes jr-pulse { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.55); } }
+
+.jr__glyph { position: relative; width: calc(36 * var(--f)); height: calc(36 * var(--f)); }
+.jr__glyph svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.jr__glyph path {
+  fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.jr__glyph .g-ghost path { stroke: rgba(255, 255, 255, .34); }
+.jr__glyph .g-live path {
+  stroke: #fff;
+  stroke-dasharray: 1 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset .95s var(--ease);
+  transition-delay: calc(var(--k, 0) * 160ms + 120ms);
+}
+.jr__glyph .g-live .ac { stroke: var(--tone); }
+.jr__step.is-lit .jr__glyph .g-live path { stroke-dashoffset: 0; }
+
+/* ---------- the evidence card under each station: a product fragment ---------- */
+.jr__card {
+  position: relative;
+  width: 100%;
+  margin-top: calc(22 * var(--f));
+  padding: calc(14 * var(--f)) calc(16 * var(--f)) calc(16 * var(--f));
+  border-radius: calc(16 * var(--f));
+  background: #fff;
+  color: #09090B;
+  text-align: left;
+  box-shadow: 0 calc(28 * var(--f)) calc(60 * var(--f)) calc(-22 * var(--f)) rgba(4, 14, 60, .6),
+              0 0 0 1px rgba(255, 255, 255, .6);
+  transition: opacity .7s var(--ease), transform .9s var(--ease-out);
+}
+.jr__card::before {                                   /* a hairline in the station's tone ties card and station */
+  content: ""; position: absolute; left: calc(16 * var(--f)); right: calc(16 * var(--f)); top: 0;
+  height: calc(2 * var(--f)); border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, rgba(var(--tone-rgb), 0), var(--tone) 30%, var(--tone) 70%, rgba(var(--tone-rgb), 0));
+}
+.jr.is-ready .jr__step:not(.is-shown) .jr__card { opacity: 0; transform: translateY(calc(14 * var(--f))) scale(.98); }
+
+.jc__head { display: flex; align-items: center; gap: calc(10 * var(--f)); }
+.jc__app {
+  display: grid; place-items: center; flex: none;
+  width: calc(24 * var(--f)); height: calc(24 * var(--f));
+  border-radius: calc(7 * var(--f));
+  background: rgba(61, 121, 255, .1); color: #3D79FF;
+}
+.jc__app svg { width: calc(14 * var(--f)); height: calc(14 * var(--f)); }
+.jc__app--sf { background: none; width: calc(30 * var(--f)); }
+.jc__app--sf img { width: calc(30 * var(--f)); height: auto; }
+.jc__tt { display: flex; flex-direction: column; gap: calc(2 * var(--f)); min-width: 0; }
+.jc__title { font: 500 calc(14 * var(--f))/1.25 var(--jakarta); white-space: nowrap; }
+.jc__meta { font: 400 calc(11.5 * var(--f))/1.2 var(--inter); color: rgba(9, 9, 11, .5); white-space: nowrap; }
+
+.jc__evidence {
+  margin-top: calc(12 * var(--f));
+  padding: calc(10 * var(--f)) calc(12 * var(--f));
+  border-radius: calc(10 * var(--f));
+  background: rgba(61, 121, 255, .08);
+}
+.jc__badge {
+  display: inline-flex; align-items: center; gap: calc(5 * var(--f));
+  font: 500 calc(11 * var(--f))/1.2 var(--jakarta); color: #2F64E8;
+}
+.jc__badge::before { content: ""; width: calc(5 * var(--f)); height: calc(5 * var(--f)); border-radius: 50%; background: currentColor; }
+.jc__quote { margin-top: calc(6 * var(--f)); font: 500 calc(13.5 * var(--f))/1.35 var(--jakarta); }
+.jc__time { margin-top: calc(4 * var(--f)); font: 400 calc(11.5 * var(--f))/1.2 var(--inter); color: rgba(9, 9, 11, .5); }
+
+.jc__ask { margin-top: calc(11 * var(--f)); font: 400 calc(12.5 * var(--f))/1.35 var(--inter); color: rgba(9, 9, 11, .55); }
+.jc__answer { margin-top: calc(6 * var(--f)); font: 500 calc(13.5 * var(--f))/1.4 var(--jakarta); }
+.jc__src { display: flex; flex-wrap: wrap; gap: calc(6 * var(--f)); margin-top: calc(10 * var(--f)); }
+.jc__src span {
+  display: inline-flex; align-items: center; gap: calc(4 * var(--f));
+  height: calc(22 * var(--f)); padding: 0 calc(8 * var(--f));
+  border-radius: 99px; background: rgba(149, 22, 245, .08); color: #7A12C9;
+  font: 500 calc(11 * var(--f))/1 var(--jakarta);
+}
+
+.jc__rows { margin: calc(12 * var(--f)) 0 0; display: grid; gap: calc(7 * var(--f)); }
+.jc__rows div { display: flex; align-items: center; justify-content: space-between; gap: calc(10 * var(--f)); }
+.jc__rows dt { font: 400 calc(12.5 * var(--f))/1.3 var(--inter); color: rgba(9, 9, 11, .5); }
+.jc__rows dd { margin: 0; display: flex; align-items: center; gap: calc(5 * var(--f)); font: 500 calc(13 * var(--f))/1.3 var(--jakarta); white-space: nowrap; }
+.jc__rows dd s { text-decoration: none; color: rgba(9, 9, 11, .45); font-weight: 400; }
+.jc__rows dd i { font-style: normal; color: rgba(9, 9, 11, .38); }
+.jc__sync {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: calc(7 * var(--f));
+  height: calc(36 * var(--f)); margin-top: calc(13 * var(--f));
+  border-radius: calc(9 * var(--f));
+  background: #3D79FF; color: #fff;
+  font: 500 calc(13 * var(--f))/1 var(--jakarta);
+  transition: background-color .5s var(--ease);
+}
+.jc__sync svg { width: calc(15 * var(--f)); height: calc(15 * var(--f)); }
+.jc__sync .is-done { display: none; }
+.jr__step.is-synced .jc__sync { background: #12A05C; }
+.jr__step.is-synced .jc__sync .is-todo { display: none; }
+.jr__step.is-synced .jc__sync .is-done { display: inline-flex; align-items: center; gap: calc(7 * var(--f)); }
+
+/* ---------- the line between stations: a hairline track the light runs along ---------- */
+.jr__ch {
+  position: absolute; top: calc((var(--jy) + 104) * var(--f)); height: 1px;
+  background: rgba(255, 255, 255, .16);
+  --p: 0;
+}
+.jr__ch--a { left: calc(348 * var(--f)); width: calc(369 * var(--f)); --from: #FF8A66; --to: #C792FF; }
+.jr__ch--b { left: calc(833 * var(--f)); width: calc(369 * var(--f)); --from: #C792FF; --to: #86B6FF; }
+.jr__fill {
+  position: absolute; left: 0; top: calc(-.5 * var(--f)); height: calc(2 * var(--f)); width: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--from), var(--to));
+  box-shadow: 0 0 calc(10 * var(--f)) rgba(199, 146, 255, .55);
+  transform-origin: 0 50%; transform: scaleX(var(--p));
+}
+.jr__head {                                           /* the front of the light */
+  position: absolute; top: 50%; left: calc(var(--p) * 100%);
+  width: calc(7 * var(--f)); height: calc(7 * var(--f)); margin: calc(-3.5 * var(--f)) 0 0 calc(-3.5 * var(--f));
+  border-radius: 50%; background: #fff;
+  box-shadow: 0 0 calc(8 * var(--f)) #fff, 0 0 calc(22 * var(--f)) var(--to);
+  opacity: 0; transition: opacity .25s;
+}
+.jr__ch.is-running .jr__head { opacity: 1; }
+
+.jr__toggle {
+  position: absolute; z-index: 3; right: calc(26 * var(--f)); bottom: calc(22 * var(--f));
+  display: grid; place-items: center;
+  width: calc(30 * var(--f)); height: calc(30 * var(--f)); border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .32); color: #fff;
+  background: rgba(255, 255, 255, .06);
+  transition: background-color .2s;
+}
+.jr__toggle:hover { background: rgba(255, 255, 255, .14); }
+.jr__toggle svg { width: calc(12 * var(--f)); height: calc(12 * var(--f)); }
+.jr__toggle .i-play, .jr__toggle .i-replay { display: none; }
+.jr.is-paused .jr__toggle .i-play { display: block; }
+.jr.is-paused .jr__toggle .i-pause, .jr.is-done .jr__toggle .i-pause, .jr.is-idle .jr__toggle .i-pause { display: none; }
+.jr.is-done .jr__toggle .i-replay { display: block; }
+.jr.is-idle .jr__toggle .i-play { display: block; }
+.jr.is-static .jr__toggle, .jr:not(.is-ready) .jr__toggle { display: none; }
+
+/* ==========================================================================
+   ≤1180 px — stacked, real px (--f = 1px from the page)
+   ========================================================================== */
+@media (max-width: 1180px) {
+  .jr { position: relative; inset: auto; margin: 44px auto 0; max-width: 560px; }
+  .jr__steps { display: grid; gap: 26px; }
+  .jr__step { position: relative; left: auto; top: auto; width: 100%; margin: 0; }
+  .jr__step--1, .jr__step--2, .jr__step--3 { left: auto; }
+  .jr__icon { width: 76px; height: 76px; }
+  .jr__disc { inset: 7px; }
+  .jr__glyph { width: 32px; height: 32px; }
+  .jr__card { max-width: 360px; }
+  .jr__ch { display: none; }
+  .jr__toggle { right: 0; bottom: auto; top: -36px; }
+}
+@media (max-width: 780px) {
+  .jr__title { font-size: 19px; white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jr__card, .jr__label, .jr__icon::after, .jr__glyph .g-live path { transition: none !important; }
+  .jr__step.is-lit .jr__pulse { animation: none; }
+}

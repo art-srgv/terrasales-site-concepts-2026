@@ -1,0 +1,840 @@
+/* ==========================================================================
+   TerraSales — Clouds. Hero above the clouds (the workflow lives in it) and
+   section 2, one problem and its answer at a time.
+   Sizing: dynamicSize, N * var(--f) with --f = (1vw + 1vh) / 25 (1px on a
+   1600 × 900 screen), capped by the page width / 1600. ≤1180px: own stacked
+   layout in real px (--f: 1px); ≤780px: phone.
+   Own copies of the pieces it took from the Frame concept, so the page stands
+   alone: journey.css + journey.js (the stations, line and cards) and s2.css
+   (the product fragments in section 2). Their Clouds look is set here.
+   ========================================================================== */
+
+:root {
+  --f: min(calc((1vw + 1vh) / 25), calc(100cqw / 1600));
+  --ink: #13161A;
+  --ink-80: rgba(19, 22, 26, .8);
+  --ink-70: rgba(19, 22, 26, .7);
+  --ink-60: rgba(19, 22, 26, .6);
+  --ink-45: rgba(19, 22, 26, .45);
+  --paper: #ECECEC;
+  --blue: #3D79FF;
+  --blue-press: #2F6AF0;
+  --sky: #1E5560;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --jakarta: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --inter: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--paper);
+  scroll-behavior: smooth;
+}
+body {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--jakarta);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+  container-type: inline-size;
+}
+img, svg { display: block; max-width: none; }
+p, h1, h2, h3, figure, dl, dd, ol, ul { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+a { color: inherit; text-decoration: none; }
+button {
+  font: inherit; color: inherit; background: none; border: 0; padding: 0;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip {
+  position: absolute; left: 16px; top: -60px; z-index: 100;
+  padding: 10px 14px; border-radius: 8px; background: var(--ink); color: #fff;
+  font: 500 14px/1.2 var(--jakarta);
+}
+.skip:focus { top: 12px; }
+
+/* ==========================================================================
+   NAV — white over the sky; glass over the paper once the hero is behind
+   ========================================================================== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  height: calc(64 * var(--f));
+  color: #fff;
+  transition: background-color .4s var(--ease), color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.nav.is-over {                                 /* scrolled, still over the sky: dark glass keeps the links clear of the hero */
+  background: rgba(14, 52, 61, .42);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
+}
+.nav.is-solid, .nav.is-menu {
+  color: var(--ink);
+  background: rgba(236, 236, 236, .78);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 1px 0 rgba(19, 22, 26, .07);
+}
+.nav:not(.is-solid):not(.is-menu) :focus-visible { outline-color: #fff; }
+
+.nav__brand {
+  position: absolute; left: calc(18 * var(--f)); top: 0; height: 100%;
+  display: flex; align-items: center;
+}
+.nav__logo { display: flex; align-items: center; gap: calc(9 * var(--f)); border-radius: calc(6 * var(--f)); }
+.nav__logo img {
+  width: calc(24 * var(--f)); height: calc(24 * var(--f));
+  filter: brightness(0) invert(1);
+  transition: filter .4s var(--ease);
+}
+.nav.is-solid .nav__logo img, .nav.is-menu .nav__logo img { filter: none; }
+.nav__word { font: 600 calc(16 * var(--f))/1.2 var(--jakarta); }
+.nav__div {
+  width: 1px; height: calc(15 * var(--f));
+  margin: calc(1 * var(--f)) calc(10 * var(--f)) 0;
+  background: currentColor; opacity: .28;
+}
+.nav__tagline {
+  margin-top: calc(1 * var(--f));
+  font: 400 calc(12 * var(--f))/1.2 var(--jakarta);
+  opacity: .6;
+  white-space: nowrap;
+}
+
+.nav__links {
+  position: absolute; left: 50%; top: calc(10 * var(--f));
+  transform: translateX(-50%);
+  display: flex; gap: calc(3 * var(--f));
+  padding: calc(3 * var(--f));
+  border-radius: 99px;
+}
+.nav__link {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; gap: calc(5 * var(--f));
+  height: calc(38 * var(--f));
+  padding: 0 calc(18 * var(--f));
+  border-radius: 99px;
+  font: 500 calc(14 * var(--f))/1.2 var(--jakarta);
+  opacity: .84;
+  white-space: nowrap;
+  transition: opacity .2s var(--ease), background-color .2s var(--ease);
+}
+.nav__link--drop { padding-right: calc(13 * var(--f)); }
+.nav__chev { width: calc(16 * var(--f)); height: calc(16 * var(--f)); transition: transform .25s var(--ease-out); }
+.nav__link:hover, .nav__link:focus-visible { opacity: 1; }
+.nav__link:hover .nav__chev { transform: translateY(1px); }
+.nav__link:focus-visible { outline-offset: 0; }
+.nav__links:not(.has-thumb) .nav__link:hover { background: rgba(255, 255, 255, .12); }
+.nav__thumb {
+  position: absolute; z-index: 0; left: 0; top: calc(3 * var(--f));
+  width: 0; height: calc(38 * var(--f));
+  border-radius: 99px;
+  background: rgba(255, 255, 255, .12);
+  opacity: 0; pointer-events: none;
+  transition: transform .38s var(--ease-out), width .38s var(--ease-out), opacity .2s var(--ease), background-color .4s var(--ease);
+}
+.nav.is-solid .nav__thumb { background: rgba(19, 22, 26, .06); }
+.nav__thumb.is-on { opacity: 1; }
+
+.nav__actions {
+  position: absolute; right: calc(18 * var(--f)); top: calc(13 * var(--f));
+  display: flex; align-items: center; gap: calc(10 * var(--f));
+}
+.nav__btn {
+  display: inline-flex; align-items: center;
+  height: calc(38 * var(--f));
+  padding: 0 calc(18 * var(--f));
+  border-radius: 99px;
+  font: 500 calc(14 * var(--f))/1.2 var(--jakarta);
+  white-space: nowrap;
+  transition: background-color .25s var(--ease), color .25s var(--ease);
+}
+.nav__btn--signin:hover { background: rgba(255, 255, 255, .1); }
+.nav.is-solid .nav__btn--signin:hover { background: rgba(19, 22, 26, .05); }
+.nav__btn--cta { background: #fff; color: var(--ink); }
+.nav__btn--cta:hover { background: rgba(255, 255, 255, .86); }
+.nav.is-solid .nav__btn--cta, .nav.is-menu .nav__btn--cta { background: var(--blue); color: #fff; }
+.nav.is-solid .nav__btn--cta:hover { background: var(--blue-press); }
+
+.nav__burger {
+  display: none; place-items: center;
+  width: 38px; height: 38px; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.mnav {
+  position: absolute; top: 100%; left: 0; right: 0;
+  display: grid; padding: 8px 16px 16px;
+  background: #F4F4F3; color: var(--ink);
+  box-shadow: 0 1px 0 rgba(19, 22, 26, .06), 0 24px 48px -24px rgba(19, 22, 26, .3);
+}
+.mnav[hidden] { display: none; }
+.mnav__link {
+  display: flex; align-items: center; height: 48px;
+  font: 500 16px/1.2 var(--jakarta);
+  border-bottom: 1px solid rgba(19, 22, 26, .07);
+}
+
+/* ==========================================================================
+   HERO — sky and far clouds · copy · the workflow · near clouds · mist
+   One photo, two layers: the sky layer is the photograph, the near layer is
+   the same photograph with the sky cut away. Aligned at rest, they read as one
+   picture; on scroll the near clouds rise over the workflow.
+   Geometry in frame units: the whole photo is 2661 × 1774, centred, shifted left
+   by --sky-x, its top at --sky-y. The files are crops of it: the sky layer
+   x 600–2560, y 0–1560; the near clouds x 600–2560, y 880–1774 (phones: x 1180–1980).
+   ========================================================================== */
+.hc {
+  --hc-h: 1120;
+  --sky-x: 250;                                 /* the photo's shift left, in frame units: the cards stand clear of the cloud tops */
+  --sky-y: -236;
+  position: relative; z-index: 0; isolation: isolate;
+  height: max(calc(var(--hc-h) * var(--f)), 100svh);   /* tall screens: the clouds fill the first screen */
+  overflow: clip;
+  background: var(--sky);
+  color: #fff;
+}
+.hc__scene, .hc__near { position: absolute; inset: 0; pointer-events: none; }
+.hc__scene { z-index: 0; }
+.hc__near { z-index: 3; }
+.hc__sky, .hc__front {
+  position: absolute;
+  left: calc(50% - (730.5 + var(--sky-x)) * var(--f));
+  width: calc(1960 * var(--f));
+  max-width: none;
+  will-change: transform;
+}
+.hc__sky { top: calc(var(--sky-y) * var(--f)); height: calc(1560 * var(--f)); }
+.hc__front { top: calc((var(--sky-y) + 880) * var(--f)); height: calc(894 * var(--f)); transform-origin: 50% 40%; }
+/* film grain at screen resolution: the photograph's own grain softens when it is scaled up */
+.hc__grain {
+  position: absolute; inset: 0;
+  background: url("img/grain.png") 0 0 / 128px 128px repeat;
+  mix-blend-mode: overlay;
+  opacity: .42;
+}
+/* a quiet top shade keeps the nav and the headline calm on the brighter right of the sky */
+.hc__scene::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 26, 32, .3), rgba(3, 26, 32, 0) 34%),
+    radial-gradient(60% 40% at 50% 30%, rgba(3, 26, 32, .14), rgba(3, 26, 32, 0) 70%);
+}
+.hc__mist {
+  position: absolute; z-index: 4; left: 0; right: 0; bottom: -1px;
+  height: calc(260 * var(--f));
+  background: linear-gradient(180deg, rgba(236, 236, 236, 0), rgba(236, 236, 236, .8) 40%, var(--paper) 62%);   /* solid for the last 100: section 2 slides in under it */
+  pointer-events: none;
+}
+
+/* the 1600-wide frame everything else is placed in */
+.hc__frame {
+  position: absolute; z-index: 2; top: 0; bottom: 0;
+  left: calc(50% - 800 * var(--f)); width: calc(1600 * var(--f));
+}
+.hc :focus-visible { outline-color: #fff; }
+
+/* ---------- copy ---------- */
+.hc__copy {
+  position: absolute; left: 50%; top: calc(112 * var(--f));
+  width: calc(1000 * var(--f)); margin-left: calc(-500 * var(--f));
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  will-change: transform, opacity;
+}
+.hc__pill {
+  display: inline-flex; align-items: center; gap: calc(9 * var(--f));
+  height: calc(33 * var(--f));
+  padding: 0 calc(15 * var(--f)) 0 calc(10 * var(--f));
+  border: 1px solid rgba(255, 255, 255, .14); border-radius: 99px;
+  background: rgba(255, 255, 255, .05);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  font: 400 calc(14 * var(--f))/1.2 var(--jakarta);
+  color: rgba(255, 255, 255, .8);
+  white-space: nowrap;
+}
+.hc__pill i {
+  display: grid; place-items: center;
+  width: calc(13 * var(--f)); height: calc(13 * var(--f));
+  border-radius: 50%; background: rgba(61, 121, 255, .3);
+}
+.hc__pill i::after { content: ""; width: calc(7 * var(--f)); height: calc(7 * var(--f)); border-radius: 50%; background: var(--blue); }
+.hc__h1 {
+  margin-top: calc(20 * var(--f));
+  font: 400 calc(48 * var(--f))/1.2 var(--serif);
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  text-shadow: 0 1px 18px rgba(3, 26, 32, .18);
+}
+.hc__h1 span { display: block; color: rgba(255, 255, 255, .62); }
+.hc__sub {                                     /* an inverted pyramid: the first line is the long one */
+  margin-top: calc(20 * var(--f));
+  font: 400 calc(16 * var(--f))/1.45 var(--inter);
+  color: rgba(255, 255, 255, .7);
+  white-space: nowrap;
+}
+.hc__ctas { display: flex; gap: calc(16 * var(--f)); margin-top: calc(30 * var(--f)); }
+.hc__btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: calc(48 * var(--f)); padding: 0 calc(30 * var(--f));
+  border-radius: calc(41 * var(--f));
+  font: 500 calc(16 * var(--f))/1.2 var(--jakarta);
+  white-space: nowrap;
+  transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
+}
+.hc__btn:active { transform: translateY(1px); }
+.hc__btn--primary { background: var(--blue); color: #fff; }
+.hc__btn--primary:hover { background: var(--blue-press); }
+.hc__btn--ghost {
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, .07);
+  -webkit-backdrop-filter: blur(4.5px); backdrop-filter: blur(4.5px);
+  color: #fff;
+}
+.hc__btn--ghost:hover { background: rgba(255, 255, 255, .13); border-color: rgba(255, 255, 255, .34); }
+
+/* ==========================================================================
+   THE WORKFLOW — three stations on one line, and one capsule that rides
+   under it and changes: what the buyer said → what it means → Salesforce.
+   Stations at 320 / 800 / 1280 (frame units, as journey.js). --jy is the top
+   of the titles; the line runs through the disc centres at --jy + 90
+   (title 40 + gap 12 + radius 38); the capsule hangs 62 below the line.
+   ========================================================================== */
+.hc .jr { --jy: 512; will-change: transform; }
+.hc .jr__step { z-index: 2; }
+.hc .jr__step--1 { left: calc(320 * var(--f));  --tone-ink: #B8461F; }
+.hc .jr__step--2 { left: calc(800 * var(--f));  --tone-ink: #8A3FD1; }
+.hc .jr__step--3 { left: calc(1280 * var(--f)); --tone-ink: #2559D9; }
+.hc .jr__ch { top: calc((var(--jy) + 90) * var(--f)); background: rgba(255, 255, 255, .24); }
+.hc .jr__ch--a { left: calc(370 * var(--f)); width: calc(380 * var(--f)); }
+.hc .jr__ch--b { left: calc(850 * var(--f)); width: calc(380 * var(--f)); }
+.hc .jr__fill { transition: opacity .5s var(--ease); }
+.hc .jr.is-fading .jr__fill { opacity: 0; }     /* the light drains before the story starts over */
+
+.hc .jr__label { height: calc(40 * var(--f)); opacity: .7; }
+.hc .jr__title {
+  margin: 0;
+  font: 400 calc(26 * var(--f))/1.15 var(--serif);
+  letter-spacing: -.005em;
+}
+.hc .jr__icon { width: calc(76 * var(--f)); height: calc(76 * var(--f)); margin-top: calc(12 * var(--f)); }
+.hc .jr__icon::before { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .34); }
+.hc .jr__disc {
+  inset: calc(7 * var(--f));
+  background: linear-gradient(180deg, #2B6874, #163F49);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 calc(6 * var(--f)) calc(18 * var(--f)) rgba(3, 24, 30, .36);
+}
+.hc .jr__glyph { width: calc(32 * var(--f)); height: calc(32 * var(--f)); }
+/* the drawing stroke stays hidden until its station lights: a fully offset dash still leaves a round-cap dot */
+.hc .jr__glyph .g-live path {
+  opacity: 0;
+  transition: stroke-dashoffset .95s var(--ease), opacity .15s linear;
+  transition-delay: calc(var(--k, 0) * 160ms + 120ms);
+}
+.hc .jr__step.is-lit .jr__glyph .g-live path { opacity: 1; }
+.hc .jr__toggle {
+  right: calc(150 * var(--f)); bottom: auto;
+  top: calc((var(--jy) + 75) * var(--f));
+  border-color: rgba(255, 255, 255, .3);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+
+/* ---------- the capsule (one per station as a note; one travelling copy when animated) ---------- */
+.pod {
+  display: flex; align-items: center; gap: calc(12 * var(--f));
+  padding: calc(11 * var(--f)) calc(20 * var(--f)) calc(11 * var(--f)) calc(11 * var(--f));
+  border-radius: 99px;
+  background: rgba(255, 255, 255, .88);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
+  color: var(--ink);
+  text-align: left;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .8),
+    0 calc(26 * var(--f)) calc(52 * var(--f)) calc(-22 * var(--f)) rgba(3, 26, 33, .55);
+}
+.pod__ico {
+  display: grid; place-items: center; flex: none;
+  width: calc(38 * var(--f)); height: calc(38 * var(--f));
+  border-radius: 50%;
+  background: rgba(var(--tone-rgb), .2); color: var(--tone-ink);
+}
+.pod__ico svg { width: calc(18 * var(--f)); height: calc(18 * var(--f)); }
+.pod__ico--sf { background: rgba(0, 161, 224, .1); }
+.pod__ico--sf img { width: calc(26 * var(--f)); height: auto; }
+.pod__tt { display: flex; flex-direction: column; gap: calc(2 * var(--f)); min-width: 0; }
+.pod__main { font: 500 calc(16 * var(--f))/1.25 var(--jakarta); letter-spacing: -.005em; white-space: nowrap; }
+.pod__meta { font: 400 max(10px, calc(12.5 * var(--f)))/1.3 var(--inter); color: var(--ink-60); white-space: nowrap; }
+.pod__done { display: none; }
+.pod__check {                                   /* the record is in Salesforce */
+  position: relative; flex: none;
+  width: calc(22 * var(--f)); height: calc(22 * var(--f));
+  margin-left: calc(2 * var(--f));
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px rgba(19, 22, 26, .18);
+  transition: background-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+.pod__check::after {
+  content: ""; position: absolute; left: 36%; top: 24%;
+  width: 28%; height: 44%;
+  border: solid #fff; border-width: 0 1.6px 1.6px 0;
+  transform: rotate(45deg);
+  opacity: 0; transition: opacity .3s var(--ease);
+}
+.jr__step.is-synced .pod__check, .jr__pod.is-synced .pod__check { background: #12A05C; box-shadow: none; }
+.jr__step.is-synced .pod__check::after, .jr__pod.is-synced .pod__check::after { opacity: 1; }
+.jr__step.is-synced .pod__todo, .jr__pod.is-synced .pod__todo { display: none; }
+.jr__step.is-synced .pod__done, .jr__pod.is-synced .pod__done { display: inline; color: #0A7A44; }
+
+/* the notes stand under their stations (no script, reduced motion, stacked layouts) */
+.hc .jr__note { margin-top: calc(24 * var(--f)); }
+.hc .jr.is-ready:not(.is-static) .jr__note {   /* the capsule shows them; screen readers still read the three notes */
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* the travelling capsule: hangs from the line, rides with the light, changes at each station */
+.hc .jr__pod {
+  --px: 320;
+  position: absolute; z-index: 1;
+  left: calc(var(--px) * var(--f)); top: calc((var(--jy) + 152) * var(--f));
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity .6s var(--ease);
+  pointer-events: none;
+}
+.hc .jr__pod.is-on { opacity: 1; }
+/* hovering a station: its column (title, disc and the capsule below) is the hit area; the capsule and the light glide there */
+.hc .jr.is-ready:not(.is-static) .jr__step::after {
+  content: ""; position: absolute; left: calc(15 * var(--f)); right: calc(15 * var(--f));
+  top: calc(-12 * var(--f)); height: calc(240 * var(--f));
+}
+.hc .jr__step.is-hover .jr__label { opacity: 1; }
+.hc .jr.is-scrub .jr__pod { transition: left .6s var(--ease-out), opacity .6s var(--ease); }
+.hc .jr.is-scrub .jr__fill { transition: transform .6s var(--ease-out), opacity .5s var(--ease); }
+.hc .jr.is-scrub .jr__head { transition: left .6s var(--ease-out), opacity .25s; }
+.hc .jr.is-static .jr__pod { display: none; }
+.hc .jr__pod::before {                          /* the hanger, up to the line */
+  content: ""; position: absolute; left: 50%; bottom: 100%;
+  height: calc(62 * var(--f));
+  border-left: 1px dashed rgba(255, 255, 255, .5);
+}
+.pod--travel {
+  position: relative;
+  width: calc(318 * var(--f)); height: calc(60 * var(--f));
+  padding: 0;
+  transition: box-shadow .6s var(--ease);
+}
+.jr__pod.is-s1 .pod--travel { --tone-rgb: 255, 138, 102; }
+.jr__pod.is-s2 .pod--travel { --tone-rgb: 199, 146, 255; }
+.jr__pod.is-s3 .pod--travel { --tone-rgb: 134, 182, 255; }
+.jr__pod .pod--travel {                         /* a hairline in the tone of the station it is at */
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--tone-rgb, 255, 255, 255), .55),
+    0 calc(26 * var(--f)) calc(52 * var(--f)) calc(-22 * var(--f)) rgba(3, 26, 33, .55);
+}
+.pod__state {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; gap: calc(12 * var(--f));
+  padding: 0 calc(20 * var(--f)) 0 calc(11 * var(--f));
+  opacity: 0; transform: translateY(calc(6 * var(--f)));
+  transition: opacity .35s var(--ease), transform .5s var(--ease-out);
+}
+.pod__state--1 { --tone-rgb: 255, 138, 102; --tone-ink: #B8461F; }
+.pod__state--2 { --tone-rgb: 199, 146, 255; --tone-ink: #8A3FD1; }
+.pod__state--3 { --tone-rgb: 134, 182, 255; --tone-ink: #2559D9; }
+.jr__pod.is-s1 .pod__state--1, .jr__pod.is-s2 .pod__state--2, .jr__pod.is-s3 .pod__state--3 {
+  opacity: 1; transform: none;
+  transition: opacity .5s var(--ease) .1s, transform .7s var(--ease-out) .1s;
+}
+.pod__state .pod__check { margin-left: auto; }
+
+/* ---------- entrance ---------- */
+.rv { animation: rise .9s var(--ease) both; animation-delay: var(--d, 0s); }
+@keyframes rise { from { opacity: 0; transform: translateY(calc(14 * var(--f))); } }
+
+/* ==========================================================================
+   SECTION 2 — "Buyers move forward." Base (≤1180px, and without JavaScript):
+   the three problems stack, each with its product block. Above 1180px with
+   JavaScript the stage holds still and shows one problem at a time.
+   ========================================================================== */
+.s2.cs {
+  background: transparent;                      /* the paper is the body's: the section can start inside the hero's mist */
+  padding: 0;
+  color: var(--ink);
+}
+.js .s2.cs { margin-top: -96px; }
+.cs__stage { padding: 72px clamp(16px, 4vw, 40px) 96px; }
+.cs__grid { display: grid; row-gap: 56px; max-width: 1040px; margin: 0 auto; }
+
+.cs__title {
+  font: 400 clamp(32px, 2.2vw + 18px, 40px)/1.2 var(--serif);
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.cs__title span { display: block; color: rgba(19, 22, 26, .55); }
+.cs__lead { margin-top: 16px; max-width: 470px; font: 400 16px/1.45 var(--inter); color: var(--ink-70); }
+
+.cs__item { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); column-gap: 40px; align-items: center; }
+.cs__text { position: relative; }
+.cs__btn { display: flex; align-items: baseline; gap: 14px; width: 100%; text-align: left; cursor: default; }
+.cs__num {
+  flex: none; width: 24px;
+  font: 600 13px/1 var(--inter);
+  font-variant-numeric: tabular-nums;
+  color: var(--acc-ink);
+}
+.cs__name { font: 500 22px/1.25 var(--jakarta); letter-spacing: -.01em; color: var(--ink); }
+.cs__body { padding-left: 38px; }
+.cs__desc { margin-top: 8px; max-width: 400px; font: 400 15px/1.5 var(--inter); color: var(--ink-70); }
+.cs__bar { display: none; }
+
+/* the product block on solid colour */
+.cs__card {
+  position: relative; isolation: isolate;
+  border-radius: 24px;
+  background: var(--card);
+  overflow: hidden;
+}
+.cs__item--1 .cs__card { --card: #F8AA93; }
+.cs__item--2 .cs__card { --card: #E0C1F7; }
+.cs__item--3 .cs__card { --card: #A0BBF7; }
+.cs .s2__viz {
+  height: 100%;
+  padding: 40px clamp(16px, 3vw, 40px);
+  border-radius: 0;
+  background: none;
+  opacity: 1; visibility: visible;
+  transition: none;
+}
+.cs .s2__viz::after { display: none; }
+.cs .s2__viz::before {                          /* the faint plotting grid, in white on the colour */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .22) 1px, transparent 1px);
+}
+.cs .s2-frag {
+  box-shadow:
+    0 1px 2px rgb(var(--shade) / .08),
+    0 calc(22 * var(--f)) calc(46 * var(--f)) calc(-22 * var(--f)) rgb(var(--shade) / .42);
+}
+html:not(.js) .cs .s2-frag { opacity: 1; transform: none; }   /* without the script, nothing waits to rise */
+
+/* ---------- problem illustrations: the deal as it looks without TerraSales ----------
+   White fragments on the solid colour (s2.css); the trouble is drawn with empty fields (dashed), amber marks
+   for guesses and stale dates, red for what was never logged, and a broken link between a CRM change and the call. */
+.cs { --pb-amber-ink: #8F5200; --pb-amber-bg: rgba(245, 158, 11, .17); --pb-red-ink: #C8272A; }
+.cs .pb-card { padding: calc(16 * var(--f)) calc(18 * var(--f)) calc(8 * var(--f)); }
+.cs .pb-sf {
+  display: grid; place-items: center; flex: none;
+  width: calc(34 * var(--f)); height: calc(30 * var(--f));
+  border-radius: calc(9 * var(--f));
+  background: rgba(0, 161, 224, .1);
+}
+.cs .pb-sf img { width: calc(24 * var(--f)); height: auto; }
+
+.cs .pb-rows { margin: calc(12 * var(--f)) 0 0; }
+.cs .pb-rows div {
+  display: flex; align-items: center; gap: calc(10 * var(--f));
+  min-height: calc(42 * var(--f));
+  border-top: 1px solid var(--s2-line);
+}
+.cs .pb-rows dt {
+  flex: none; width: calc(112 * var(--f));
+  font: 400 max(10px, calc(12.5 * var(--f)))/1.3 var(--s2-text);
+  color: var(--s2-ink-60);
+}
+.cs .pb-rows--memo dt { width: calc(126 * var(--f)); }
+.cs .pb-rows dd {
+  margin: 0; min-width: 0;
+  font: 500 max(11px, calc(13.5 * var(--f)))/1.3 var(--s2-font);
+  color: var(--s2-ink);
+}
+.cs .pb-rows .pb-side { margin-left: auto; flex: none; }
+.cs .pb-rows .pb-guessed { font-weight: 400; font-style: italic; color: var(--s2-ink-70); }
+
+.cs .pb-empty {                                 /* a field nobody filled in */
+  display: inline-flex; align-items: center;
+  height: calc(26 * var(--f)); padding: 0 calc(10 * var(--f));
+  border: 1px dashed rgba(9, 9, 11, .24); border-radius: calc(7 * var(--f));
+  font: italic 400 max(10px, calc(12.5 * var(--f)))/1 var(--s2-text);
+  color: var(--s2-ink-60);
+  white-space: nowrap;
+}
+.cs .pb-warn, .cs .pb-late {                    /* a guess, a gap, a date that is too old */
+  display: inline-flex; align-items: center; gap: calc(6 * var(--f));
+  height: calc(22 * var(--f)); padding: 0 calc(9 * var(--f)) 0 calc(8 * var(--f));
+  border-radius: 99px;
+  background: var(--pb-amber-bg); color: var(--pb-amber-ink);
+  font: 500 max(10px, calc(11.5 * var(--f)))/1 var(--s2-font);
+  white-space: nowrap;
+}
+.cs .pb-warn i { flex: none; width: calc(5 * var(--f)); height: calc(5 * var(--f)); min-width: 4px; min-height: 4px; border-radius: 50%; background: currentColor; }
+.cs .pb-late { flex: none; margin-left: auto; padding-left: calc(7 * var(--f)); }
+.cs .pb-late svg { width: calc(12 * var(--f)); height: calc(12 * var(--f)); min-width: 10px; min-height: 10px; }
+
+/* 01 · the change and its reason, disconnected */
+.cs .s2__viz.s2-coral { gap: calc(6 * var(--f)); }
+.cs .pb-gap {
+  position: relative; align-self: flex-end;
+  width: min(100%, calc(340 * var(--f))); height: calc(46 * var(--f));
+  opacity: 0; transition: opacity .4s var(--s2-ease);
+}
+.cs .s2__viz.is-on .pb-gap { opacity: 1; transition: opacity .6s var(--s2-ease) .35s; }
+.cs .pb-gap::before {                            /* the link, broken in the middle */
+  content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
+  border-left: 1px dashed rgb(var(--shade) / .55);
+  -webkit-mask: linear-gradient(#000 0 30%, transparent 30% 70%, #000 70%);
+  mask: linear-gradient(#000 0 30%, transparent 30% 70%, #000 70%);
+}
+.cs .pb-gap__x {
+  position: absolute; left: 50%; top: 50%;
+  display: grid; place-items: center;
+  width: calc(22 * var(--f)); height: calc(22 * var(--f)); min-width: 18px; min-height: 18px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff; color: var(--pb-red-ink);
+  box-shadow: 0 0 0 1px rgba(200, 39, 42, .35), 0 calc(6 * var(--f)) calc(14 * var(--f)) calc(-6 * var(--f)) rgb(var(--shade) / .4);
+}
+.cs .pb-gap__x svg { width: 58%; height: 58%; }
+.cs .pb-call { max-width: calc(340 * var(--f)); margin-left: auto; padding: calc(14 * var(--f)) calc(16 * var(--f)); }
+.cs .pb-call__top { display: flex; align-items: center; justify-content: space-between; gap: calc(10 * var(--f)); }
+.cs .pb-rec {
+  display: inline-flex; align-items: center; gap: calc(8 * var(--f)); min-width: 0;
+  font: 500 max(10px, calc(12 * var(--f)))/1.2 var(--s2-font);
+  color: var(--s2-ink-70);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cs .pb-rec i {
+  flex: none; width: calc(8 * var(--f)); height: calc(8 * var(--f)); min-width: 6px; min-height: 6px;
+  border-radius: 50%; background: #E9393C;
+  box-shadow: 0 0 0 calc(3 * var(--f)) rgba(233, 57, 60, .16);
+}
+.cs .pb-call__quote { margin-top: calc(10 * var(--f)); font: 500 max(12px, calc(16 * var(--f)))/1.35 var(--s2-font); letter-spacing: -.005em; color: var(--s2-ink); }
+.cs .pb-call__foot { margin-top: calc(8 * var(--f)); font: 400 max(10px, calc(12 * var(--f)))/1.3 var(--s2-text); color: var(--s2-ink-60); }
+
+/* 02 · qualification from memory */
+.cs .pb-chips { display: flex; gap: calc(6 * var(--f)); margin-top: calc(12 * var(--f)); }
+.cs .pb-chips span {
+  display: grid; place-items: center; flex: none;
+  width: calc(26 * var(--f)); height: calc(26 * var(--f)); min-width: 20px; min-height: 20px;
+  border-radius: 50%;
+  background: rgba(9, 9, 11, .05);
+  font: 600 max(10px, calc(11.5 * var(--f)))/1 var(--s2-text);
+  color: var(--s2-ink-60);
+}
+.cs .pb-chips .is-guess { background: var(--pb-amber-bg); color: var(--pb-amber-ink); border: 1px dashed currentColor; }
+.cs .pb-chips .is-none { background: transparent; border: 1px dashed rgba(9, 9, 11, .26); color: rgba(9, 9, 11, .42); }
+.cs .pb-note {                                   /* a sticky note, written days later */
+  max-width: calc(320 * var(--f)); margin-left: auto;
+  padding: calc(14 * var(--f)) calc(16 * var(--f)) calc(16 * var(--f));
+  background: #FFF5D1;
+  rotate: -1.2deg;
+}
+.cs .pb-note__top {
+  display: flex; align-items: center; gap: calc(6 * var(--f));
+  font: 600 max(10px, calc(11 * var(--f)))/1.2 var(--s2-font);
+  letter-spacing: .06em; text-transform: uppercase;
+  color: #7A5A00;
+}
+.cs .pb-note__top svg { width: calc(12 * var(--f)); height: calc(12 * var(--f)); min-width: 10px; min-height: 10px; }
+.cs .pb-note__text { margin-top: calc(8 * var(--f)); font: italic 400 max(12px, calc(15 * var(--f)))/1.4 var(--s2-text); color: #3D3511; }
+
+/* 03 · the record weeks behind the deal */
+.cs .pb-queue { max-width: calc(380 * var(--f)); margin-left: auto; padding: calc(14 * var(--f)) calc(16 * var(--f)); }
+.cs .pb-queue__top {
+  display: flex; align-items: center; justify-content: space-between; gap: calc(10 * var(--f));
+  font: 500 max(11px, calc(13 * var(--f)))/1.3 var(--s2-font);
+  color: var(--s2-ink);
+}
+.cs .pb-count {
+  display: inline-flex; align-items: center; flex: none;
+  height: calc(20 * var(--f)); padding: 0 calc(8 * var(--f));
+  border-radius: 99px;
+  background: rgba(233, 57, 60, .1); color: var(--pb-red-ink);
+  font: 500 max(10px, calc(11.5 * var(--f)))/1 var(--s2-font);
+}
+.cs .pb-queue__rows { margin-top: calc(10 * var(--f)); }
+.cs .pb-queue__rows li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center;
+  column-gap: calc(10 * var(--f));
+  padding: calc(9 * var(--f)) 0;
+  border-top: 1px solid var(--s2-line);
+}
+.cs .pb-queue__rows i { width: calc(8 * var(--f)); height: calc(8 * var(--f)); min-width: 6px; min-height: 6px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(9, 9, 11, .3); }
+.cs .pb-queue__rows span { font: 500 max(11px, calc(13 * var(--f)))/1.3 var(--s2-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cs .pb-queue__rows small { font: 400 max(10px, calc(12 * var(--f)))/1.3 var(--s2-text); color: var(--s2-ink-60); white-space: nowrap; }
+.cs .pb-queue__rows em { font: 500 max(10px, calc(11.5 * var(--f)))/1 var(--s2-font); font-style: normal; color: var(--pb-red-ink); white-space: nowrap; }
+.cs .pb-task { margin-top: calc(10 * var(--f)); }
+
+/* ==========================================================================
+   Above 1180px, with JavaScript: the stage holds for three screens of scroll
+   ========================================================================== */
+@media (min-width: 1181px) {
+  /* the section starts inside the hero's mist, so the title arrives as the clouds thin out, with no empty band */
+  .js .s2.cs { margin-top: calc(-190 * var(--f)); }
+  .js .cs__track { position: relative; height: calc(100svh + 2 * 72svh); }
+  .js .cs__stage {
+    position: sticky; top: 0;
+    height: 100svh; min-height: calc(800 * var(--f));
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: max(calc(150 * var(--f)), calc(50svh - 330 * var(--f))) 0 0;   /* centred on tall screens, never under the nav */
+  }
+  .js .cs__grid {
+    width: calc(1196 * var(--f)); max-width: none; margin: 0;
+    grid-template-columns: calc(470 * var(--f)) calc(600 * var(--f));
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: calc(126 * var(--f)); row-gap: 0;
+    align-items: start;
+  }
+  .js .cs__head { grid-column: 1; grid-row: 1; }
+  .js .cs__title { font-size: calc(40 * var(--f)); }
+  .js .cs__lead { margin-top: calc(16 * var(--f)); max-width: calc(470 * var(--f)); font-size: calc(16 * var(--f)); }
+
+  .js .cs__item { display: contents; }
+  .js .cs__text { grid-column: 1; padding: calc(17 * var(--f)) 0 calc(18 * var(--f)); border-top: 1px solid rgba(19, 22, 26, .1); }
+  .js .cs__item--1 .cs__text { grid-row: 2; margin-top: calc(44 * var(--f)); }
+  .js .cs__item--2 .cs__text { grid-row: 3; }
+  .js .cs__item--3 .cs__text { grid-row: 4; }
+  .js .cs__btn { gap: calc(16 * var(--f)); cursor: pointer; }
+  .js .cs__num { width: calc(26 * var(--f)); font-size: calc(13 * var(--f)); color: var(--ink-45); transition: color .4s var(--ease); }
+  .js .cs__name { font-size: calc(22 * var(--f)); color: var(--ink-45); transition: color .4s var(--ease); }
+  .js .cs__btn:hover .cs__name { color: var(--ink-70); }
+  .js .cs__item.is-active .cs__num { color: var(--acc-ink); }
+  .js .cs__item.is-active .cs__name { color: var(--ink); }
+  .js .cs__more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .55s var(--ease-out); }
+  .js .cs__item.is-active .cs__more { grid-template-rows: 1fr; }
+  .js .cs__body { min-height: 0; overflow: hidden; padding-left: calc(42 * var(--f)); }
+  .js .cs__desc { margin-top: calc(8 * var(--f)); max-width: calc(400 * var(--f)); font-size: calc(15 * var(--f)); }
+  .js .cs__bar {                                 /* how far through this problem the scroll is */
+    display: block; position: absolute; left: 0; right: 0; top: -1px;
+    height: 2px; overflow: hidden;
+    opacity: 0; transition: opacity .3s var(--ease);
+  }
+  .js .cs__bar i {
+    position: absolute; inset: 0;
+    background: var(--acc-ink);
+    transform-origin: 0 50%; transform: scaleX(var(--p, 0));
+  }
+  .js .cs__item.is-active .cs__bar { opacity: 1; }
+
+  .js .cs__card {
+    grid-column: 2; grid-row: 1 / -1;
+    height: calc(600 * var(--f));
+    border-radius: calc(28 * var(--f));
+    opacity: 0; visibility: hidden;
+    transform: translateY(calc(10 * var(--f)));
+    transition: opacity .5s var(--ease), transform .7s var(--ease-out), visibility 0s linear .5s;
+  }
+  .js .cs__item.is-active .cs__card {
+    z-index: 1;
+    opacity: 1; visibility: visible; transform: none;
+    transition: opacity .6s var(--ease), transform .8s var(--ease-out), visibility 0s;
+  }
+  .js .cs .s2__viz { padding: calc(56 * var(--f)) calc(52 * var(--f)); }
+}
+
+/* ==========================================================================
+   ≤1180px — the hero and the workflow stack, in real px
+   ========================================================================== */
+@media (max-width: 1180px) {
+  :root { --f: 1px; }
+  .nav__div, .nav__tagline { display: none; }
+  .nav__brand { left: 16px; }
+  .nav__actions { right: 12px; }
+
+  .hc { --sky-y: 0; height: auto; padding: 128px 20px 260px; }
+  .hc__frame { position: relative; left: auto; width: auto; max-width: 720px; margin: 0 auto; }
+  .hc__copy { position: relative; left: auto; top: auto; width: auto; margin: 0; }
+  .hc__h1 { font-size: clamp(32px, 3.6vw + 16px, 48px); white-space: normal; text-wrap: balance; }
+  .hc__sub { max-width: 470px; white-space: normal; text-wrap: balance; }
+  .hc__sub br { display: none; }
+  .hc__ctas { flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .hc .jr { margin-top: 56px; }
+  .hc .jr__step--1, .hc .jr__step--2, .hc .jr__step--3 { left: auto; }   /* journey.css stacks them; undo the frame positions */
+  .hc .jr__note { margin-top: 18px; max-width: 100%; }
+  .hc .jr__toggle { right: 0; top: -40px; }
+  .hc__front { top: auto; bottom: -440px; }       /* the near clouds gather under the workflow */
+  .hc__mist { height: 200px; }
+}
+@media (max-width: 999px) {
+  .nav__links, .nav__btn--signin { display: none; }
+  .nav__burger { display: grid; }
+}
+@media (min-width: 1000px) {
+  .mnav { display: none !important; }
+}
+
+/* Phone: the workflow becomes a vertical path — disc on the line, card beside it */
+@media (max-width: 780px) {
+  .nav { height: 60px; }
+  .nav__actions { top: 11px; gap: 8px; }
+  .nav__btn--cta { padding: 0 14px; }
+
+  .hc { padding: 112px 16px 220px; }
+  .hc__pill { font-size: 13px; }
+  .hc__h1 { font-size: clamp(30px, 6vw + 10px, 38px); }
+  .hc__sub { font-size: 15px; }
+  .hc__btn { height: 46px; padding: 0 24px; font-size: 15px; }
+
+  .hc .jr { max-width: 420px; margin-top: 48px; }
+  .hc .jr__steps { position: relative; display: grid; gap: 22px; }
+  .hc .jr__step:not(:last-child)::before {      /* the line, now vertical: from each disc down to the next */
+    content: ""; position: absolute; left: 25px; top: 50px; bottom: -22px;
+    border-left: 1px solid rgba(255, 255, 255, .28);
+  }
+  .hc .jr__step {
+    display: grid; grid-template-columns: 50px minmax(0, 1fr);
+    column-gap: 14px; align-items: start;
+  }
+  .hc .jr__icon { grid-column: 1; grid-row: 1 / span 2; width: 50px; height: 50px; margin: 0; }
+  .hc .jr__disc { inset: 5px; }
+  .hc .jr__glyph { width: 24px; height: 24px; }
+  .hc .jr__label { grid-column: 2; height: auto; text-align: left; padding-top: 2px; }
+  .hc .jr__title { font-size: 22px; white-space: normal; }
+  .hc .jr__note { grid-column: 2; justify-self: start; margin-top: 12px; border-radius: 22px; }
+  .hc .pod__main, .hc .pod__meta { white-space: normal; }
+  .hc__sky, .hc__front { left: calc(50% - (150.5 + var(--sky-x)) * 1px); width: 800px; }   /* the phone crops */
+  .hc__front { bottom: -520px; }
+
+  .cs__stage { padding: 36px 16px 72px; }
+  .cs__grid { row-gap: 44px; }
+  .cs__item { grid-template-columns: minmax(0, 1fr); row-gap: 20px; }
+  .cs__name { font-size: 20px; }
+  .cs__card { border-radius: 20px; }
+  .cs .s2__viz { padding: 22px 14px; }
+  .cs .pb-call, .cs .pb-note, .cs .pb-queue { max-width: none; }
+  .cs .pb-gap { width: 100%; }
+  .cs .pb-rows dt, .cs .pb-rows--memo dt { width: 96px; }
+  .cs .pb-rows .pb-side .s2-time { display: none; }                  /* dates are secondary on a phone */
+  .cs .pb-rows--memo div { flex-wrap: wrap; row-gap: 4px; padding: 8px 0; }
+  .cs .pb-rows--memo .pb-side { margin-left: 106px; }                /* the mark goes under its value */
+}
+
+/* narrow phones: the frame slides right of the peak, so no dark rock sits behind the path (the crop covers up to 459px here) */
+@media (max-width: 459px) {
+  .hc { --sky-x: 420; }
+}
+
+/* ---------- Motion & contrast preferences ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rv { animation: none; }
+  .hc__sky, .hc__front, .hc__copy, .hc .jr { transform: none !important; opacity: 1 !important; }
+  .pod__state, .pod__check, .pod__check::after, .hc .jr__pod, .hc .jr__fill, .nav, .nav__thumb,
+  .js .cs__more, .js .cs__card, .js .cs__item.is-active .cs__card, .cs__num, .cs__name { transition: none !important; }
+}
+@media (forced-colors: active) {
+  .pod, .cs__card { border: 1px solid CanvasText; }
+}
